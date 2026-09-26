@@ -85,3 +85,22 @@ export const SHOP = {
     ["Sunday", "By appointment"],
   ],
 };
+
+export const PAYMENT_METHODS = [
+  ["CASH", "Cash"],
+  ["GCASH", "GCash"],
+  ["MAYA", "Maya"],
+  ["CARD", "Card"],
+  ["BANK_TRANSFER", "Bank transfer"],
+];
+export const paymentLabel = (m) => PAYMENT_METHODS.find(([k]) => k === m)?.[1] || m;
+
+/** "3 days", "5 hours" or "less than an hour" until the given time; null once it has passed. */
+export function timeLeft(iso) {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (!iso || Number.isNaN(ms) || ms <= 0) return null;
+  const h = Math.floor(ms / 3600000);
+  if (h >= 48) return `${Math.floor(h / 24)} days`;
+  if (h >= 1) return `${h} hour${h === 1 ? "" : "s"}`;
+  return "less than an hour";
+}

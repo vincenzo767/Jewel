@@ -113,7 +113,13 @@ public class AdminController {
     @PatchMapping("/orders/{id}/status")
     @Transactional
     public OrderDto status(@PathVariable Long id, @Valid @RequestBody StatusUpdate req) {
-        return OrderDto.of(orderService.updateStatus(id, req.status(), current.get()));
+        return OrderDto.of(orderService.updateStatus(id, req.status(), current.get(), req.paymentMethod(), req.paymentReference()));
+    }
+
+    @PatchMapping("/orders/{id}/hold")
+    @Transactional
+    public OrderDto extendHold(@PathVariable Long id, @Valid @RequestBody HoldExtension req) {
+        return OrderDto.of(orderService.extendHold(id, req.days()));
     }
 
     // ---------- Customers ----------

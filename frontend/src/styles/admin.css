@@ -283,3 +283,12 @@
   .bars__row { grid-template-columns: 76px 1fr 36px; }
   .toolbar__add { width: 100%; }
 }
+
+/* ---------- Collect & payment ---------- */
+.collect { display: flex; flex-direction: column; gap: 22px; }
+.collect > .muted { margin: 0; }
+.collect__total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+.collect__total strong { font-family: var(--serif); font-weight: 400; font-size: 1.9rem; letter-spacing: 0; color: var(--ink); }
+.collect__methods { border: 0; padding: 0; margin: 0; }
+.collect__methods legend { margin-bottom: 12px; }
+.collect .modal__actions { margin-top: 6px; }

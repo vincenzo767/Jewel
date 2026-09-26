@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, MessageCircle, Package } from "lucide-react";
+import { ChevronDown, Clock, MessageCircle, Package, Wallet } from "lucide-react";
 import { api, errorMessage } from "../../lib/api";
 import { useToast } from "../../context/ToastContext";
-import { formatDate, formatPrice, formatTime, ORDER_STATUS } from "../../lib/format";
-import { EASE, EmptyState, Frame, Modal, PageLoader } from "../../components/ui";
+import { formatDate, formatPrice, formatTime, ORDER_STATUS, PAYMENT_METHODS, paymentLabel, timeLeft } from "../../lib/format";
+import { EASE, EmptyState, Field, Frame, Modal, PageLoader, Spinner } from "../../components/ui";
 import { StatusTimeline } from "../customer/Orders";
 
 const NEXT = {
@@ -21,6 +21,8 @@ export default function Orders() {
   const [tab, setTab] = useState("open");
   const [expanded, setExpanded] = useState(null);
   const [confirm, setConfirm] = useState(null);
+  const [collect, setCollect] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     document.title = "Reservations — Bryle's Diamonds Admin";
@@ -35,13 +37,31 @@ export default function Orders() {
 
   const visible = (orders || []).filter((o) => tab === "all" || (tab === "open" ? !["COMPLETED", "CANCELLED"].includes(o.status) : o.status === tab));
 
-  const move = async (order, status) => {
+  const replace = (data) => setOrders((os) => os.map((o) => (o.id === data.id ? data : o)));
+
+  const move = async (order, status, payment = {}) => {
     setConfirm(null);
+    setBusy(true);
     try {
-      const { data } = await api.patch(`/admin/orders/${order.id}/status`, { status });
-      setOrders((os) => os.map((o) => (o.id === data.id ? data : o)));
+      const { data } = await api.patch(`/admin/orders/${order.id}/status`, { status, ...payment });
+      replace(data);
+      setCollect(null);
       toast(`${data.reference} — ${ORDER_STATUS[status].label}. The customer has been notified.`);
+    } catch (e) { toast(errorMessage(e), "error"); } finally { setBusy(false); }
+  };
+
+  const extend = async (order) => {
+    try {
+      const { data } = await api.patch(`/admin/orders/${order.id}/hold`, { days: 7 });
+      replace(data);
+      toast(`${data.reference} is now held until ${formatDate(data.holdUntil)}.`);
     } catch (e) { toast(errorMessage(e), "error"); }
+  };
+
+  const onAction = (o, st) => {
+    if (st === "CANCELLED") setConfirm({ order: o, status: st });
+    else if (st === "COMPLETED") setCollect({ order: o, method: "CASH", reference: "" });
+    else move(o, st);
   };
 
   if (orders === null) return <PageLoader inline />;
@@ -91,13 +111,26 @@ export default function Orders() {
                               </div>
                             ))}
                           </div>
+                          {["PENDING", "CONFIRMED", "READY_FOR_PICKUP"].includes(o.status) && o.holdUntil && (
+                            <p className={`hold-note ${timeLeft(o.holdUntil) && !timeLeft(o.holdUntil).includes("days") ? "hold-note--soon" : ""}`}>
+                              <Clock size={14} strokeWidth={1.3} />
+                              <span>Held until <strong>{formatDate(o.holdUntil)}, {formatTime(o.holdUntil)}</strong>{timeLeft(o.holdUntil) ? ` — ${timeLeft(o.holdUntil)} left` : " — releasing shortly"}. Uncollected reservations are released automatically.</span>
+                              <button className="text-btn" onClick={() => extend(o)}>Extend 7 days</button>
+                            </p>
+                          )}
+                          {o.status === "COMPLETED" && o.paymentMethod && (
+                            <p className="hold-note">
+                              <Wallet size={14} strokeWidth={1.3} />
+                              <span>Paid by <strong>{paymentLabel(o.paymentMethod)}</strong>{o.paymentReference ? <> · Ref. <strong>{o.paymentReference}</strong></> : null}{o.paidAt ? ` · ${formatDate(o.paidAt)}, ${formatTime(o.paidAt)}` : ""}</span>
+                            </p>
+                          )}
                           {(o.note || o.pickupDate) && (
                             <p className="order__note">{o.pickupDate && <>Preferred pickup: <strong>{formatDate(o.pickupDate)}</strong>. </>}{o.note && `“${o.note}”`}</p>
                           )}
                           <div className="aorder__actions">
                             <Link to={`/admin/messages?c=${o.customerId}`} className="btn btn--sm"><MessageCircle size={14} strokeWidth={1.3} /> Message customer</Link>
                             {(NEXT[o.status] || []).map(([st, label]) => (
-                              <button key={st} className={`btn btn--sm ${st === "CANCELLED" ? "btn--danger" : "btn--emerald"}`} onClick={() => (st === "CANCELLED" ? setConfirm({ order: o, status: st }) : move(o, st))}>{label}</button>
+                              <button key={st} className={`btn btn--sm ${st === "CANCELLED" ? "btn--danger" : "btn--emerald"}`} onClick={() => onAction(o, st)}>{label}</button>
                             ))}
                           </div>
                         </div>
@@ -117,6 +150,29 @@ export default function Orders() {
           <button className="btn" onClick={() => setConfirm(null)}>Keep</button>
           <button className="btn btn--danger" onClick={() => move(confirm.order, confirm.status)}>Cancel reservation</button>
         </div>
+      </Modal>
+
+      <Modal open={!!collect} onClose={() => !busy && setCollect(null)} eyebrow="Mark as collected" title={`Collect ${collect?.order.reference}`}>
+        {collect && (
+          <form className="collect" onSubmit={(e) => { e.preventDefault(); move(collect.order, "COMPLETED", { paymentMethod: collect.method, paymentReference: collect.reference.trim() || null }); }}>
+            <p className="muted">Only confirm once {collect.order.customerName} has paid in full and taken the pieces. This records the sale and can't be undone.</p>
+            <div className="collect__total"><span>Amount received</span><strong>{formatPrice(collect.order.total)}</strong></div>
+            <fieldset className="collect__methods">
+              <legend className="field-label">Paid by</legend>
+              <div className="pills">
+                {PAYMENT_METHODS.map(([k, l]) => (
+                  <button type="button" key={k} className={`pill ${collect.method === k ? "is-active" : ""}`} aria-pressed={collect.method === k} onClick={() => setCollect((c) => ({ ...c, method: k }))}>{l}</button>
+                ))}
+              </div>
+            </fieldset>
+            <Field label={collect.method === "CASH" ? "Receipt number (optional)" : "Reference / transaction number (optional)"} value={collect.reference} maxLength={80}
+              onChange={(e) => setCollect((c) => ({ ...c, reference: e.target.value }))} />
+            <div className="modal__actions">
+              <button type="button" className="btn" onClick={() => setCollect(null)} disabled={busy}>Not yet</button>
+              <button className="btn btn--emerald" disabled={busy}>{busy ? <><Spinner /> Saving</> : "Confirm collected & paid"}</button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );

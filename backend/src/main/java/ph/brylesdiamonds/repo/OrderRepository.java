@@ -25,6 +25,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select o from Order o join fetch o.customer order by o.createdAt desc")
     List<Order> findRecent(org.springframework.data.domain.Pageable page);
 
+    @Query("select o from Order o where o.status in (ph.brylesdiamonds.model.OrderStatus.PENDING, ph.brylesdiamonds.model.OrderStatus.CONFIRMED, ph.brylesdiamonds.model.OrderStatus.READY_FOR_PICKUP) and o.holdUntil is null")
+    List<Order> findOpenWithoutHold();
+
+    /** Open reservations whose hold has run out, with their customer loaded for the chat notice. */
+    @Query("select o from Order o join fetch o.customer where o.status in (ph.brylesdiamonds.model.OrderStatus.PENDING, ph.brylesdiamonds.model.OrderStatus.CONFIRMED, ph.brylesdiamonds.model.OrderStatus.READY_FOR_PICKUP) and o.holdUntil < :now")
+    List<Order> findOverdue(java.time.Instant now);
+
     /** Per customer: [customerId, reservation count, total reserved excluding cancellations]. */
     @Query("""
         select o.customer.id, count(o),

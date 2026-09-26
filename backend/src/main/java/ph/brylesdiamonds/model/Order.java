@@ -38,6 +38,19 @@ public class Order {
     @OrderBy("id")
     private List<OrderItem> items = new ArrayList<>();
 
+    /** Recorded when the reservation is collected and paid for at the shop. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PaymentMethod paymentMethod;
+
+    @Column(length = 80)
+    private String paymentReference;
+
+    private Instant paidAt;
+
+    /** An open reservation not collected by this time is released and its stock returned. */
+    private Instant holdUntil;
+
     private Instant createdAt = Instant.now();
 
     private Instant updatedAt = Instant.now();
@@ -66,4 +79,12 @@ public class Order {
     public List<OrderItem> getItems() { return items; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getPaymentReference() { return paymentReference; }
+    public void setPaymentReference(String paymentReference) { this.paymentReference = paymentReference; }
+    public Instant getPaidAt() { return paidAt; }
+    public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
+    public Instant getHoldUntil() { return holdUntil; }
+    public void setHoldUntil(Instant holdUntil) { this.holdUntil = holdUntil; }
 }

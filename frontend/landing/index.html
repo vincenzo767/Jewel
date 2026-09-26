@@ -212,13 +212,22 @@
 <script>
   // Best sellers rail
   (() => {
+    // Shows the owner's live featured pieces; falls back to the built-in selection if the shop's
+    // server can't be reached, so the landing page never renders an empty rail.
     const ids = ["aurora-halo-ring", "amour-diamond-heart", "cadena-link-bracelet", "marisol-sapphire-drops",
                  "torsade-twisted-hoops", "perla-pearl-strand", "etoile-tennis-bracelet", "tala-layered-chains"];
     const rail = document.getElementById("rail");
-    rail.innerHTML = ids.map(getProduct).filter(Boolean).map(productCard).join("");
+    const fallback = () => ids.map(getProduct).filter(Boolean).map(productCard).join("");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    fetch("/api/public/featured", { signal: ctrl.signal, credentials: "omit" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((list) => { rail.innerHTML = Array.isArray(list) && list.length ? list.map(liveCard).join("") : fallback(); })
+      .catch(() => { rail.innerHTML = fallback(); })
+      .finally(() => { clearTimeout(timer); watchImages(rail); });
     const prev = document.getElementById("railPrev"), next = document.getElementById("railNext");
     prev.innerHTML = ICON.arrowL; next.innerHTML = ICON.arrowR;
-    const step = () => rail.querySelector(".card").offsetWidth + 30;
+    const step = () => (rail.querySelector(".card")?.offsetWidth || 300) + 30;
     prev.addEventListener("click", () => rail.scrollBy({ left: -step(), behavior: "smooth" }));
     next.addEventListener("click", () => rail.scrollBy({ left: step(), behavior: "smooth" }));
   })();

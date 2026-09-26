@@ -27,6 +27,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ph.brylesdiamonds.dto.Dtos.ApiError;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import ph.brylesdiamonds.security.AuthCookies;
 import ph.brylesdiamonds.security.AuthStateCache;
 import ph.brylesdiamonds.security.JwtAuthFilter;
 import ph.brylesdiamonds.security.JwtService;
@@ -55,7 +57,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt, AuthStateCache authStates, ObjectMapper json,
+    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt, AuthStateCache authStates, AuthCookies authCookies, ObjectMapper json,
                                     @Value("${app.cookie.secure:false}") boolean secureCookies) throws Exception {
         CookieCsrfTokenRepository csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfRepo.setCookiePath("/");
@@ -64,7 +66,11 @@ public class SecurityConfig {
         RequestMatcher appPages = new AntPathRequestMatcher("/app/**");
 
         http
-            .csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+            // The session cookie authenticates every request, which Spring would otherwise treat as a fresh
+            // sign-in and answer with a new CSRF token each time, racing parallel requests. The token stays
+            // stable instead; writes still need the matching header, and the cookie is SameSite=Strict.
+            .csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+                    .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy()))
             .cors(cors -> {})
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
@@ -86,13 +92,13 @@ public class SecurityConfig {
                         ? "CSRF" : "You don't have access to that.")))
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/api/auth/session", "/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/files/**", "/api/public/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/cart/**", "/api/favorites/**", "/api/orders/**", "/api/chat/**").hasRole("CUSTOMER")
                 .requestMatchers("/api/**", "/ws/**").authenticated()
                 // Static landing page + the single-page app shell
                 .anyRequest().permitAll())
-            .addFilterBefore(new JwtAuthFilter(jwt, authStates), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthFilter(jwt, authStates, authCookies), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

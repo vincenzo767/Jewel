@@ -30,6 +30,7 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
+  font-variant-numeric: lining-nums;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);

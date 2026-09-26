@@ -437,3 +437,12 @@
   .profile-hero__spent { text-align: left; }
   .home-hero__ctas .btn { flex: 1; }
 }
+
+/* ---------- Reservation hold & payment notes ---------- */
+.hold-note { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; margin: 16px 0 0; padding: 12px 14px; background: var(--ivory); border-left: 2px solid var(--emerald); font-size: .86rem; color: var(--ink-soft); line-height: 1.5; }
+.hold-note svg { flex-shrink: 0; margin-top: 3px; color: var(--emerald); }
+.hold-note span { flex: 1; min-width: 200px; }
+.hold-note strong { color: var(--ink); font-weight: 400; }
+.hold-note .text-btn { align-self: center; }
+.hold-note--soon { border-left-color: var(--gold-deep); }
+.hold-note--soon svg { color: var(--gold-deep); }

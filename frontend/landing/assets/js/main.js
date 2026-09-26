@@ -228,6 +228,32 @@
       </div>
     </article>`;
 
+  /* Card for a live piece from the owner's catalogue (/api/public/featured). Every value is
+     escaped, since the text comes from the database and is inserted as HTML. */
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const safeSrc = (u) => (/^(https:\/\/|\/api\/files\/)/.test(u || "") ? esc(u) : "");
+  window.liveCard = (p) => {
+    const href = `/app/product/${encodeURIComponent(p.id)}`;
+    const [img, alt] = p.images || [];
+    const tag = p.inStock ? p.tag : "Sold out";
+    return `
+    <article class="card">
+      <div class="card__top">
+        <a href="${href}" class="card__media frame" tabindex="-1" aria-hidden="true">
+          ${tag ? `<span class="card__tag">${esc(tag)}</span>` : ""}
+          <img src="${safeSrc(img)}" alt="${esc(p.name)}${p.metal ? " — " + esc(p.metal) : ""}" loading="lazy">
+          <img class="img-alt" src="${safeSrc(alt || img)}" alt="" loading="lazy">
+        </a>
+        <a class="card__wish" href="${href}" aria-label="Save ${esc(p.name)} in the shop">${ICON.heart}</a>
+        <a class="card__quick" href="${href}">View in the shop</a>
+      </div>
+      <div class="card__info">
+        <div><a href="${href}" class="card__name">${esc(p.name)}</a><div class="card__meta">${esc(p.metal)}</div></div>
+        <div class="card__price">${esc(formatPrice(Number(p.price)))}</div>
+      </div>
+    </article>`;
+  };
+
   /* ---------- Newsletter ---------- */
   document.getElementById("newsletter").addEventListener("submit", (e) => {
     e.preventDefault();

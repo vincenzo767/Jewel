@@ -15,7 +15,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select coalesce(sum(p.stock), 0) from Product p")
     long totalStock();
 
-    List<Product> findTop6ByStockLessThanEqualOrderByStockAsc(int threshold);
+    List<Product> findTop8ByActiveTrueAndFeaturedTrueOrderByIdAsc();
 
     /** Row lock so two customers can't reserve the last piece at the same time. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)

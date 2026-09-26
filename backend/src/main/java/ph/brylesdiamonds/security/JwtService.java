@@ -44,12 +44,16 @@ public class JwtService {
     public Duration ttl() { return ttl; }
 
     public String issue(User user) {
+        return issue(user.getId(), user.getTokenVersion());
+    }
+
+    public String issue(long userId, int tokenVersion) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .issuer(ISSUER)
-                .subject(String.valueOf(user.getId()))
-                .claim("ver", user.getTokenVersion())
+                .subject(String.valueOf(userId))
+                .claim("ver", tokenVersion)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttl)))
                 .signWith(key, Jwts.SIG.HS256)

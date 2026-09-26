@@ -5,7 +5,7 @@ import { CalendarDays, Check, MapPin, ShoppingBag, Trash2 } from "lucide-react";
 import { api, errorMessage } from "../../lib/api";
 import { useShop } from "../../context/ShopContext";
 import { useToast } from "../../context/ToastContext";
-import { formatPrice, SHOP, stockInfo } from "../../lib/format";
+import { formatDate, formatPrice, SHOP, stockInfo } from "../../lib/format";
 import { EASE, EmptyState, Field, Frame, Modal, Reveal, Spinner, Stepper } from "../../components/ui";
 
 const tomorrow = () => {
@@ -120,7 +120,7 @@ export default function Cart() {
             <h3 className="modal__title">We're holding it <em>for you.</em></h3>
             <p className="muted">Your reference is</p>
             <p className="success__ref">{done.reference}</p>
-            <p className="muted">Our team will confirm shortly in your chat. Total due at pickup: <strong>{formatPrice(done.total)}</strong>.</p>
+            <p className="muted">Our team will confirm shortly in your chat. Total due at pickup: <strong>{formatPrice(done.total)}</strong>.{done.holdUntil && <> We'll hold the pieces until <strong>{formatDate(done.holdUntil)}</strong>.</>}</p>
             <div className="modal__actions" style={{ justifyContent: "center" }}>
               <button className="btn btn--solid" onClick={() => { setDone(null); navigate("/orders"); }}>View reservations</button>
               <button className="btn" onClick={() => { setDone(null); navigate("/shop"); }}>Keep browsing</button>

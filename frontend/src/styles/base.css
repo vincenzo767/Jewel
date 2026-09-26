@@ -44,6 +44,8 @@ body {
   font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  /* Cormorant defaults to old-style figures, where 0 reads as a letter o; use lining figures for prices and counts. */
+  font-variant-numeric: lining-nums;
   overflow-x: hidden;
 }
 img { display: block; max-width: 100%; }

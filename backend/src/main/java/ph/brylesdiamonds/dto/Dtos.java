@@ -106,7 +106,13 @@ public final class Dtos {
 
     public record CheckoutRequest(@Size(max = 500) String note, @Size(max = 40) String pickupDate) {}
 
-    public record StatusUpdate(@NotNull OrderStatus status) {}
+    public record StatusUpdate(
+            @NotNull OrderStatus status,
+            /* Required when marking a reservation as collected. */
+            PaymentMethod paymentMethod,
+            @Size(max = 80) @Pattern(regexp = "^[\\p{L}\\p{N} ._/#-]*$", message = "The payment reference may only contain letters, numbers and - _ / . #") String paymentReference) {}
+
+    public record HoldExtension(@Min(1) @Max(30) int days) {}
 
     public record OrderItemDto(Long productId, String productName, String imageUrl, BigDecimal unitPrice,
                                int quantity, String size) {
@@ -118,12 +124,14 @@ public final class Dtos {
 
     public record OrderDto(Long id, String reference, OrderStatus status, BigDecimal total, String note,
                            String pickupDate, List<OrderItemDto> items, Instant createdAt, Instant updatedAt,
-                           Long customerId, String customerName, String customerEmail) {
+                           Long customerId, String customerName, String customerEmail,
+                           PaymentMethod paymentMethod, String paymentReference, Instant paidAt, Instant holdUntil) {
         public static OrderDto of(Order o) {
             User c = o.getCustomer();
             return new OrderDto(o.getId(), o.getReference(), o.getStatus(), o.getTotal(), o.getNote(),
                     o.getPickupDate(), o.getItems().stream().map(OrderItemDto::of).toList(), o.getCreatedAt(),
-                    o.getUpdatedAt(), c.getId(), c.getFullName(), c.getEmail());
+                    o.getUpdatedAt(), c.getId(), c.getFullName(), c.getEmail(),
+                    o.getPaymentMethod(), o.getPaymentReference(), o.getPaidAt(), o.getHoldUntil());
         }
     }
 

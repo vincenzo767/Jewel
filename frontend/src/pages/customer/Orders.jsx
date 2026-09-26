@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Package } from "lucide-react";
+import { Check, Clock, Package, Wallet } from "lucide-react";
 import { api, errorMessage } from "../../lib/api";
 import { useToast } from "../../context/ToastContext";
-import { formatDate, formatPrice, ORDER_FLOW, ORDER_STATUS } from "../../lib/format";
+import { formatDate, formatPrice, formatTime, ORDER_FLOW, ORDER_STATUS, paymentLabel, timeLeft } from "../../lib/format";
 import { EASE, EmptyState, Frame, Modal, PageLoader, Reveal } from "../../components/ui";
 
 export function StatusTimeline({ status }) {
@@ -85,6 +85,18 @@ export default function Orders() {
                       </div>
                     ))}
                   </div>
+                  {["PENDING", "CONFIRMED", "READY_FOR_PICKUP"].includes(o.status) && o.holdUntil && (
+                    <p className="hold-note">
+                      <Clock size={14} strokeWidth={1.3} />
+                      <span>We're holding these pieces for you until <strong>{formatDate(o.holdUntil)}, {formatTime(o.holdUntil)}</strong>{timeLeft(o.holdUntil) ? ` (${timeLeft(o.holdUntil)} left)` : ""}. Need more time? Just message us.</span>
+                    </p>
+                  )}
+                  {o.status === "COMPLETED" && o.paymentMethod && (
+                    <p className="hold-note">
+                      <Wallet size={14} strokeWidth={1.3} />
+                      <span>Paid by <strong>{paymentLabel(o.paymentMethod)}</strong>{o.paidAt ? ` on ${formatDate(o.paidAt)}` : ""}{o.paymentReference ? ` · Ref. ${o.paymentReference}` : ""}</span>
+                    </p>
+                  )}
                   {o.note && <p className="order__note">“{o.note}”</p>}
                   <footer className="order__foot">
                     <span className={`chip chip--${ORDER_STATUS[o.status].tone}`}><i />{ORDER_STATUS[o.status].label}</span>
