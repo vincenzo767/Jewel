@@ -27,7 +27,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ph.brylesdiamonds.dto.Dtos.ApiError;
-import ph.brylesdiamonds.repo.UserRepository;
+import ph.brylesdiamonds.security.AuthStateCache;
 import ph.brylesdiamonds.security.JwtAuthFilter;
 import ph.brylesdiamonds.security.JwtService;
 import ph.brylesdiamonds.security.SpaCsrfTokenRequestHandler;
@@ -55,7 +55,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt, UserRepository users, ObjectMapper json,
+    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt, AuthStateCache authStates, ObjectMapper json,
                                     @Value("${app.cookie.secure:false}") boolean secureCookies) throws Exception {
         CookieCsrfTokenRepository csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfRepo.setCookiePath("/");
@@ -92,7 +92,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/**", "/ws/**").authenticated()
                 // Static landing page + the single-page app shell
                 .anyRequest().permitAll())
-            .addFilterBefore(new JwtAuthFilter(jwt, users), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthFilter(jwt, authStates), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

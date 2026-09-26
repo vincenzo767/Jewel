@@ -25,6 +25,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("select count(m) from ChatMessage m where m.fromAdmin = false and m.readByRecipient = false")
     long countUnreadForAdmins();
 
+    /** Unread customer messages per conversation: [customerId, count]. */
+    @Query("select m.customer.id, count(m) from ChatMessage m where m.fromAdmin = false and m.readByRecipient = false group by m.customer.id")
+    List<Object[]> unreadForAdminsPerCustomer();
+
     @Modifying
     @Query("update ChatMessage m set m.readByRecipient = true where m.customer.id = :customerId and m.fromAdmin = :fromAdmin and m.readByRecipient = false")
     int markRead(Long customerId, boolean fromAdmin);

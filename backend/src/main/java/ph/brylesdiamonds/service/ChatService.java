@@ -17,7 +17,9 @@ import ph.brylesdiamonds.repo.ProductRepository;
 import ph.brylesdiamonds.repo.UserRepository;
 import ph.brylesdiamonds.web.ApiException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ChatService {
@@ -69,10 +71,12 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ConversationDto> conversations() {
+        Map<Long, Long> unread = new HashMap<>();
+        for (Object[] row : messages.unreadForAdminsPerCustomer()) unread.put((Long) row[0], (Long) row[1]);
         return messages.findLatestPerConversation().stream().map(m -> {
             User c = m.getCustomer();
             return new ConversationDto(c.getId(), c.getFullName(), c.getEmail(), c.getAvatarUrl(), m.getContent(),
-                    m.isFromAdmin(), m.getCreatedAt(), messages.countUnread(c.getId(), false));
+                    m.isFromAdmin(), m.getCreatedAt(), unread.getOrDefault(c.getId(), 0L));
         }).toList();
     }
 

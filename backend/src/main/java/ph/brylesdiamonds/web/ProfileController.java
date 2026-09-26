@@ -17,6 +17,7 @@ import ph.brylesdiamonds.repo.ChatMessageRepository;
 import ph.brylesdiamonds.repo.FavoriteRepository;
 import ph.brylesdiamonds.repo.OrderRepository;
 import ph.brylesdiamonds.security.AuthCookies;
+import ph.brylesdiamonds.security.AuthStateCache;
 import ph.brylesdiamonds.security.CurrentUser;
 import ph.brylesdiamonds.security.JwtService;
 import ph.brylesdiamonds.service.FileStorageService;
@@ -36,10 +37,11 @@ public class ProfileController {
     private final CartItemRepository cart;
     private final OrderRepository orders;
     private final ChatMessageRepository messages;
+    private final AuthStateCache authStates;
 
     public ProfileController(CurrentUser current, PasswordEncoder encoder, FileStorageService files, JwtService jwt,
                              AuthCookies cookies, FavoriteRepository favorites, CartItemRepository cart,
-                             OrderRepository orders, ChatMessageRepository messages) {
+                             OrderRepository orders, ChatMessageRepository messages, AuthStateCache authStates) {
         this.current = current;
         this.encoder = encoder;
         this.files = files;
@@ -49,6 +51,7 @@ public class ProfileController {
         this.cart = cart;
         this.orders = orders;
         this.messages = messages;
+        this.authStates = authStates;
     }
 
     @GetMapping
@@ -109,6 +112,7 @@ public class ProfileController {
         }
         u.setPasswordHash(encoder.encode(req.newPassword()));
         u.setTokenVersion(u.getTokenVersion() + 1);
+        authStates.evict(u.getId());
         cookies.set(res, jwt.issue(u), jwt.ttl());
         return Map.of("ok", true);
     }

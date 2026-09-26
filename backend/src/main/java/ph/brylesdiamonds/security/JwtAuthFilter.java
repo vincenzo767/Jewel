@@ -10,22 +10,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ph.brylesdiamonds.repo.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
- * Authenticates a request from the session cookie. The user is re-read on every request so a
- * suspended account, a role change, or a logout elsewhere (token version bump) takes effect immediately.
+ * Authenticates a request from the session cookie. Account state comes from AuthStateCache, which is
+ * evicted whenever it changes, so a suspension or a logout elsewhere (token version bump) takes effect immediately.
  */
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwt;
-    private final UserRepository users;
+    private final AuthStateCache states;
 
-    public JwtAuthFilter(JwtService jwt, UserRepository users) {
+    public JwtAuthFilter(JwtService jwt, AuthStateCache states) {
         this.jwt = jwt;
-        this.users = users;
+        this.states = states;
     }
 
     @Override
@@ -43,12 +42,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         Integer version = claims.get("ver", Integer.class);
-        users.findById(id)
-                .filter(u -> u.isEnabled() && version != null && version == u.getTokenVersion())
+        states.get(id)
+                .filter(u -> u.enabled() && version != null && version == u.tokenVersion())
                 .ifPresent(u -> {
-                    AuthUser principal = new AuthUser(u.getId(), u.getEmail(), u.getRole());
+                    AuthUser principal = new AuthUser(u.id(), u.email(), u.role());
                     var auth = new UsernamePasswordAuthenticationToken(principal, null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole().name())));
+                            List.of(new SimpleGrantedAuthority("ROLE_" + u.role().name())));
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 });

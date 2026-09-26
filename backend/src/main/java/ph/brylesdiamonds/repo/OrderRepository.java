@@ -21,6 +21,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByStatus(OrderStatus status);
 
+
+    @Query("select o from Order o join fetch o.customer order by o.createdAt desc")
+    List<Order> findRecent(org.springframework.data.domain.Pageable page);
+
+    /** Per customer: [customerId, reservation count, total reserved excluding cancellations]. */
+    @Query("""
+        select o.customer.id, count(o),
+               coalesce(sum(case when o.status <> ph.brylesdiamonds.model.OrderStatus.CANCELLED then o.total else 0 end), 0)
+        from Order o group by o.customer.id""")
+    List<Object[]> totalsPerCustomer();
+
     long countByCustomerId(Long customerId);
 
     @Query("select coalesce(sum(o.total), 0) from Order o where o.status = ph.brylesdiamonds.model.OrderStatus.COMPLETED")

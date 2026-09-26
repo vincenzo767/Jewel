@@ -18,6 +18,7 @@ import ph.brylesdiamonds.model.Role;
 import ph.brylesdiamonds.model.User;
 import ph.brylesdiamonds.repo.UserRepository;
 import ph.brylesdiamonds.security.AuthCookies;
+import ph.brylesdiamonds.security.AuthStateCache;
 import ph.brylesdiamonds.security.CurrentUser;
 import ph.brylesdiamonds.security.JwtService;
 import ph.brylesdiamonds.security.RateLimiter;
@@ -41,6 +42,7 @@ public class AuthController {
     private final RateLimiter limiter;
     private final CurrentUser current;
     private final ChatService chat;
+    private final AuthStateCache authStates;
     private final int maxFailed;
     private final int lockMinutes;
     private final int ipLoginLimit;
@@ -49,7 +51,7 @@ public class AuthController {
     private final String dummyHash;
 
     public AuthController(UserRepository users, PasswordEncoder encoder, JwtService jwt, AuthCookies cookies,
-                          RateLimiter limiter, CurrentUser current, ChatService chat,
+                          RateLimiter limiter, CurrentUser current, ChatService chat, AuthStateCache authStates,
                           @Value("${app.security.max-failed-logins:5}") int maxFailed,
                           @Value("${app.security.lock-minutes:15}") int lockMinutes,
                           @Value("${app.security.ip-login-attempts-per-15min:30}") int ipLoginLimit,
@@ -61,6 +63,7 @@ public class AuthController {
         this.limiter = limiter;
         this.current = current;
         this.chat = chat;
+        this.authStates = authStates;
         this.maxFailed = maxFailed;
         this.lockMinutes = lockMinutes;
         this.ipLoginLimit = ipLoginLimit;
@@ -156,7 +159,10 @@ public class AuthController {
     @Transactional
     public Map<String, Object> logout(HttpServletResponse res) {
         current.principal().flatMap(p -> users.findById(p.id()))
-                .ifPresent(u -> u.setTokenVersion(u.getTokenVersion() + 1));
+                .ifPresent(u -> {
+                    u.setTokenVersion(u.getTokenVersion() + 1);
+                    authStates.evict(u.getId());
+                });
         cookies.clear(res);
         return Map.of("ok", true);
     }

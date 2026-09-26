@@ -6,7 +6,7 @@ import { api, errorMessage } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { categoryLabel, compactPeso, firstName, formatDate, formatPrice, greeting, ORDER_STATUS } from "../../lib/format";
-import { CountUp, EASE, Frame, PageLoader, StockBadge } from "../../components/ui";
+import { CountUp, EASE, EmptyState, Frame, PageLoader, StockBadge } from "../../components/ui";
 
 function StockChart({ data }) {
   const [hover, setHover] = useState(null);
@@ -39,7 +39,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
 
   const load = () => api.get("/admin/stats").then(({ data }) => setStats(data));
-  useEffect(() => { document.title = "Dashboard — Bryle's Diamonds Admin"; load().catch(() => setStats(false)); }, []);
+  const firstLoad = () => { setStats(null); load().catch(() => setStats(false)); };
+  useEffect(() => { document.title = "Dashboard — Bryle's Diamonds Admin"; firstLoad(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const restock = async (p, add) => {
     try {
@@ -50,7 +51,13 @@ export default function Dashboard() {
   };
 
   if (stats === null) return <PageLoader inline />;
-  if (stats === false) return <p className="muted">We couldn't load the dashboard. Please refresh.</p>;
+  if (stats === false) {
+    return (
+      <EmptyState icon={AlertTriangle} title="The dashboard didn't load." text="The connection to the database may have been slow. Your data is safe.">
+        <button className="btn btn--solid" onClick={firstLoad}>Try again</button>
+      </EmptyState>
+    );
+  }
 
   const kpis = [
     [Gem, "Pieces published", stats.activeProducts, `${stats.products} in catalogue`, "/admin/products"],

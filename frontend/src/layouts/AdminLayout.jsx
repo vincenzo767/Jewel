@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Boxes, ExternalLink, Gem, LayoutDashboard, LogOut, Menu, MessagesSquare, Package, Plus, UserRound, Users, X } from "lucide-react";
@@ -32,8 +32,20 @@ export default function AdminLayout() {
   const [open, setOpen] = useState(false);
   const [counts, setCounts] = useState({ unread: 0, pending: 0, lowStock: 0 });
 
+  // Sidebar badges use a one-query endpoint. At most one request is in flight; a refresh asked for
+  // meanwhile runs once it finishes, so bursts of navigation or chat events never pile up.
+  const counting = useRef({ busy: false, again: false });
   const refreshCounts = useCallback(() => {
-    api.get("/admin/stats").then(({ data }) => setCounts({ unread: data.unreadMessages, pending: data.pendingOrders, lowStock: data.lowStock + data.soldOut })).catch(() => {});
+    const c = counting.current;
+    if (c.busy) { c.again = true; return; }
+    c.busy = true;
+    api.get("/admin/counts")
+      .then(({ data }) => setCounts(data))
+      .catch(() => {})
+      .finally(() => {
+        c.busy = false;
+        if (c.again) { c.again = false; refreshCounts(); }
+      });
   }, []);
 
   useEffect(() => { refreshCounts(); }, [refreshCounts, location.pathname]);
