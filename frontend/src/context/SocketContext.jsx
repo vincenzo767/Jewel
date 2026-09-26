@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import { useAuth } from "./AuthContext";
+import { api } from "../lib/api";
+
+const WS_URL = import.meta.env.VITE_WS_URL;
 
 const SocketContext = createContext({ connected: false, subscribe: () => () => {} });
 
@@ -18,6 +21,15 @@ export function SocketProvider({ children }) {
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
     const client = new Client({
       brokerURL: `${scheme}://${window.location.host}/ws`,
+      // When the API lives on another host (VITE_WS_URL, e.g. Vercel in front of Render), the session cookie
+      // can't reach it, so each (re)connect first fetches a 60-second ticket through the proxied API.
+      // If fetching the ticket fails, the stale URL fails to connect and the normal reconnect loop retries.
+      beforeConnect: WS_URL ? async () => {
+        try {
+          const { data } = await api.get("/auth/ws-ticket");
+          client.brokerURL = `${WS_URL}?ticket=${encodeURIComponent(data.ticket)}`;
+        } catch { /* retried on the next reconnect */ }
+      } : undefined,
       reconnectDelay: 4000,
       heartbeatIncoming: 20000,
       heartbeatOutgoing: 20000,

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:vercel": "vite build --outDir dist/app --emptyOutDir && node scripts/copy-landing.mjs",
     "build:jar": "vite build --outDir ../backend/src/main/resources/static/app --emptyOutDir",
     "preview": "vite preview"
   },

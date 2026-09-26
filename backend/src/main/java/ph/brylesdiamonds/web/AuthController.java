@@ -154,6 +154,16 @@ public class AuthController {
         return UserDto.of(user);
     }
 
+    /**
+     * A 60-second ticket for opening the chat WebSocket directly on the API's host. Used when the site is
+     * served from another host (e.g. Vercel proxying /api), since the session cookie never reaches the API's host.
+     */
+    @GetMapping("/ws-ticket")
+    public Map<String, Object> wsTicket() {
+        User u = current.get();
+        return Map.of("ticket", jwt.issueWsTicket(u.getId(), u.getTokenVersion()));
+    }
+
     /** Signs out everywhere: bumping the token version revokes every token issued so far. */
     @PostMapping("/logout")
     @Transactional

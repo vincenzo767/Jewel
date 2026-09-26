@@ -23,6 +23,8 @@ import java.util.UUID;
 public class JwtService {
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private static final String ISSUER = "brylesdiamonds";
+    private static final String WS_TICKET = "ws";
+    private static final Duration WS_TICKET_TTL = Duration.ofSeconds(60);
 
     private final SecretKey key;
     private final Duration ttl;
@@ -60,7 +62,31 @@ public class JwtService {
                 .compact();
     }
 
+    /** A short-lived ticket that only opens the chat WebSocket; it is never accepted as a session. */
+    public String issueWsTicket(long userId, int tokenVersion) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+                .id(UUID.randomUUID().toString())
+                .issuer(ISSUER)
+                .subject(String.valueOf(userId))
+                .claim("ver", tokenVersion)
+                .claim("typ", WS_TICKET)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(WS_TICKET_TTL)))
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
+    }
+
+    /** Parses a session token. WebSocket tickets are rejected. */
     public Optional<Claims> parse(String token) {
+        return verify(token).filter(c -> c.get("typ") == null);
+    }
+
+    public Optional<Claims> parseWsTicket(String token) {
+        return verify(token).filter(c -> WS_TICKET.equals(c.get("typ")));
+    }
+
+    private Optional<Claims> verify(String token) {
         try {
             return Optional.of(Jwts.parser().verifyWith(key).requireIssuer(ISSUER).build()
                     .parseSignedClaims(token).getPayload());

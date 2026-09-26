@@ -13,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Authenticates a request from the session cookie. Account state comes from AuthStateCache, which is
@@ -35,6 +36,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         AuthCookies.read(req).flatMap(jwt::parse).ifPresent(claims -> {
             if (authenticate(claims, req) && !req.getRequestURI().endsWith("/api/auth/logout")) renewIfAging(claims, res);
         });
+        // The WebSocket handshake may carry a short-lived ticket instead, when the site is served from another host.
+        if (SecurityContextHolder.getContext().getAuthentication() == null && "/ws".equals(req.getRequestURI())) {
+            Optional.ofNullable(req.getParameter("ticket")).flatMap(jwt::parseWsTicket).ifPresent(claims -> authenticate(claims, req));
+        }
         chain.doFilter(req, res);
     }
 
