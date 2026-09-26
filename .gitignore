@@ -1,0 +1,24 @@
+# Dependencies & build output
+node_modules/
+frontend/dist/
+backend/target/
+backend/src/main/resources/static/app/
+
+# Local runtime data (embedded database and uploaded images)
+backend/data/
+backend/uploads/
+
+# Editors / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Secrets: never commit real environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
