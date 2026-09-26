@@ -228,7 +228,7 @@ function RegisterForm({ onDone, switchTo }) {
       </div>
       <label className={`check auth-agree ${errors.agree ? "has-error" : ""}`}>
         <input type="checkbox" checked={agree} onChange={(e) => { setAgree(e.target.checked); setErrors((x) => ({ ...x, agree: undefined })); }} />
-        <span>I agree that Bryle's Diamonds may store my details to manage my account and reservations.</span>
+        <span>I agree that Bryle's Diamonds may store my details to manage my account and reservations, as described in the <a href="/privacy.html" target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>Privacy Policy</a> and <a href="/terms.html" target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>Terms</a>.</span>
       </label>
       {errors.agree && <span className="field__error">{errors.agree}</span>}
       <button className="btn btn--solid btn--block auth-submit" disabled={busy}>

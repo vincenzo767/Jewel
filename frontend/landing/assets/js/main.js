@@ -82,22 +82,17 @@
             </ul>
           </div>
           <div>
-            <h4>The Private List</h4>
-            <p style="color:var(--ink-soft);font-size:.92rem;margin-bottom:10px">First access to new collections and atelier events.</p>
-            <form class="newsletter" id="newsletter" novalidate>
-              <label for="nl-email" class="sr-only">Email address</label>
-              <input id="nl-email" type="email" placeholder="Your email address" required>
-              <button type="submit">Join</button>
-            </form>
+            <h4>Follow Us</h4>
+            <p style="color:var(--ink-soft);font-size:.92rem;margin-bottom:10px">New pieces, restocks and shop news on Facebook and Instagram.</p>
+            <p style="font-size:.92rem;margin:0"><a href="mailto:hikimurieunwoo@gmail.com">hikimurieunwoo@gmail.com</a></p>
             <div class="footer__social">
-              <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 7.3A4.7 4.7 0 1 0 12 16.7 4.7 4.7 0 0 0 12 7.3zm0 7.7a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm6-7.9a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0zM21.9 8c-.1-1.6-.4-3-1.6-4.2S17.6 2.2 16 2.1C14.4 2 9.6 2 8 2.1 6.4 2.2 5 2.5 3.8 3.7S2.2 6.4 2.1 8C2 9.6 2 14.4 2.1 16c.1 1.6.4 3 1.6 4.2s2.6 1.5 4.2 1.6c1.6.1 6.4.1 8 0 1.6-.1 3-.4 4.2-1.6s1.5-2.6 1.6-4.2c.1-1.6.1-6.4 0-8zm-2.1 9.7a3.2 3.2 0 0 1-1.8 1.8c-1.3.5-4.3.4-5.7.4s-4.4.1-5.7-.4a3.2 3.2 0 0 1-1.8-1.8c-.5-1.3-.4-4.3-.4-5.7s-.1-4.4.4-5.7A3.2 3.2 0 0 1 6.3 4.5C7.6 4 10.6 4.1 12 4.1s4.4-.1 5.7.4a3.2 3.2 0 0 1 1.8 1.8c.5 1.3.4 4.3.4 5.7s.1 4.4-.4 5.7z"/></svg></a>
-              <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.3c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H7.5v3.6h2.8V22H14v-9.9h2.8l.4-3.6H14z"/></svg></a>
-              <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12.3 2C6.8 2 4 5.9 4 9.2c0 2 .8 3.7 2.4 4.4.3.1.5 0 .6-.3l.2-.9c.1-.3 0-.4-.2-.7-.5-.6-.8-1.3-.8-2.4 0-3.1 2.3-5.8 6-5.8 3.3 0 5.1 2 5.1 4.7 0 3.5-1.6 6.5-3.9 6.5-1.3 0-2.2-1-1.9-2.3.4-1.5 1.1-3.2 1.1-4.3 0-1-.5-1.8-1.6-1.8-1.3 0-2.3 1.3-2.3 3.1 0 1.1.4 1.9.4 1.9l-1.5 6.4c-.4 1.9-.1 4.2 0 4.4 0 .1.2.2.3.1.1-.2 1.6-2 2.1-3.8l.8-3.2c.4.8 1.6 1.4 2.9 1.4 3.8 0 6.4-3.5 6.4-8.1C20.1 5.3 17 2 12.3 2z"/></svg></a>
+              <a href="https://www.instagram.com/bryles_diamonds_jewelry/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 7.3A4.7 4.7 0 1 0 12 16.7 4.7 4.7 0 0 0 12 7.3zm0 7.7a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm6-7.9a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0zM21.9 8c-.1-1.6-.4-3-1.6-4.2S17.6 2.2 16 2.1C14.4 2 9.6 2 8 2.1 6.4 2.2 5 2.5 3.8 3.7S2.2 6.4 2.1 8C2 9.6 2 14.4 2.1 16c.1 1.6.4 3 1.6 4.2s2.6 1.5 4.2 1.6c1.6.1 6.4.1 8 0 1.6-.1 3-.4 4.2-1.6s1.5-2.6 1.6-4.2c.1-1.6.1-6.4 0-8zm-2.1 9.7a3.2 3.2 0 0 1-1.8 1.8c-1.3.5-4.3.4-5.7.4s-4.4.1-5.7-.4a3.2 3.2 0 0 1-1.8-1.8c-.5-1.3-.4-4.3-.4-5.7s-.1-4.4.4-5.7A3.2 3.2 0 0 1 6.3 4.5C7.6 4 10.6 4.1 12 4.1s4.4-.1 5.7.4a3.2 3.2 0 0 1 1.8 1.8c.5 1.3.4 4.3.4 5.7s.1 4.4-.4 5.7z"/></svg></a>
+              <a href="https://www.facebook.com/share/1DhWzrqrJm/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.3c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H7.5v3.6h2.8V22H14v-9.9h2.8l.4-3.6H14z"/></svg></a>
             </div>
           </div>
         </div>
         <div class="footer__word" aria-hidden="true">Bryle's <em>D</em>iamonds</div>
-        <p class="footer__legal">© 2026 Bryle's Diamonds Jewelry Shop | V. H. Garces St, Talisay City 6045| +63 992 409 2298</p>
+        <p class="footer__legal">© 2026 Bryle's Diamonds-Gold Jewelry Shop · V. H. Garces St, Talisay City, Cebu 6045 · +63 992 409 2298 · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></p>
       </div>
     </footer>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>`;
@@ -253,15 +248,6 @@
       </div>
     </article>`;
   };
-
-  /* ---------- Newsletter ---------- */
-  document.getElementById("newsletter").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const input = e.target.querySelector("input");
-    if (!/^\S+@\S+\.\S+$/.test(input.value)) { toast("Please enter a valid email address"); input.focus(); return; }
-    input.value = "";
-    toast("Welcome to the Private List");
-  });
 
   /* ---------- Init ---------- */
   document.addEventListener("DOMContentLoaded", () => {

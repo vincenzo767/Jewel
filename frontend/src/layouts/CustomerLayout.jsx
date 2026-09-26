@@ -140,8 +140,12 @@ export default function CustomerLayout() {
           <div className="container">
             <div className="cfooter__word" aria-hidden="true">Bryle's <em>D</em>iamonds</div>
             <div className="cfooter__row">
+              <span>© 2026 {SHOP.legalName}</span>
               <span>{SHOP.address}</span>
               <span>{SHOP.phone}</span>
+              <a href={`mailto:${SHOP.email}`} className="text-btn">{SHOP.email}</a>
+              <a href="/privacy.html" className="text-btn">Privacy Policy</a>
+              <a href="/terms.html" className="text-btn">Terms of Service</a>
               <a href="/" className="text-btn">Back to the landing page</a>
             </div>
           </div>

@@ -916,3 +916,12 @@ body.menu-open .menu li:nth-child(6) a { transition-delay: .3s; }
 @media (max-width: 860px) {
   .nav__links--right .nav__discover { padding: 7px 12px; font-size: .58rem; letter-spacing: .2em; }
 }
+
+/* ---------- Legal pages (privacy, terms) ---------- */
+.legal { max-width: 760px; margin: 0 auto; padding: 0 var(--gutter) clamp(80px, 10vw, 150px); }
+.legal h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 56px 0 14px; }
+.legal p, .legal li { color: var(--ink-soft); line-height: 1.75; }
+.legal ul { padding-left: 1.2em; }
+.legal a { text-decoration: underline; text-underline-offset: 3px; }
+.legal__updated { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+.footer__legal a { text-decoration: underline; text-underline-offset: 3px; }

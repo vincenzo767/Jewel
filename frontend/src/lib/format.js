@@ -74,9 +74,10 @@ export const ORDER_FLOW = ["PENDING", "CONFIRMED", "READY_FOR_PICKUP", "COMPLETE
 
 export const SHOP = {
   name: "Bryle's Diamonds",
+  legalName: "Bryle's Diamonds-Gold Jewelry Shop",
   address: "V. H. Garces St, Talisay City, Cebu 6045",
   phone: "+63 992 409 2298",
-  email: "hello@brylesdiamonds.ph",
+  email: "hikimurieunwoo@gmail.com",
   lat: 10.2447,
   lng: 123.8494,
   directions: "https://www.google.com/maps/dir/?api=1&destination=V.+H.+Garces+St,+Talisay+City,+Cebu",
